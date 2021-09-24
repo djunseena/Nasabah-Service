@@ -19,8 +19,9 @@ public class NasabahService {
         this.pesan = pesan;
     }
 
-
-
+    /*
+     * Get informasi akun nasabah sesuai nomor rekening
+     */
     public String getNamaNasabah(int nomorRekening) {
         Nasabah nasabah = nasabahRepository.findById(nomorRekening)
                 .orElseThrow(IllegalStateException::new);
@@ -43,6 +44,14 @@ public class NasabahService {
         return nasabah.getNoTelp();
     }
 
+    public int getStatus(int nomorRekening) {
+        Nasabah nasabah = nasabahRepository.findById(nomorRekening)
+                .orElseThrow(IllegalStateException::new);
+
+
+        return nasabah.getStatus();
+    }
+
     public boolean getStatusBlokir(int nomorRekening) {
         Nasabah nasabah = nasabahRepository.findById(nomorRekening)
                 .orElseThrow(IllegalStateException::new);
@@ -51,14 +60,18 @@ public class NasabahService {
         return nasabah.isBlokir();
     }
 
+
+    /* Liat data semua akun nasabah bank */
     public List<Nasabah> getAllNasabah() {
         return nasabahRepository.findAll();
     }
 
+    /* Menambah akun baru */
     public void addNewNasabah(Nasabah nasabah) {
         nasabahRepository.save(nasabah);
     }
 
+    /* Menghapus akun nasabah */
     public void deleteNasabah(int nomorRekening) {
         boolean exists = nasabahRepository.existsById(nomorRekening);
         if (!exists) {
@@ -67,25 +80,33 @@ public class NasabahService {
         nasabahRepository.deleteById(nomorRekening);
     }
 
+    /* Ubah data akun nasabah */
     @Transactional
-    public void updateDataNasabah(int nomorRekening, String namaNasabah, String pin, String email,
-                                  String noTelp, int status, boolean blokir, Long idKantor) {
+    public void updateDataNasabah(
+            int nomorRekening,
+            String namaNasabah,
+            String pin,
+            String email,
+            String noTelp,
+            int status,
+            boolean blokir,
+            Long idKantor) {
         Nasabah nasabah = nasabahRepository.findById(nomorRekening)
                 .orElseThrow(() -> new IllegalStateException(pesan.error411().values().toString()));
 
-        if (namaNasabah != null && namaNasabah.length() > 0) {
+        if (namaNasabah != null) {
             nasabah.setNamaNasabah(namaNasabah);
         }
 
-        if (pin != null && pin.length() > 0 && pin.length() < 5) {
+        if (pin != null) {
             nasabah.setPin(pin);
         }
 
-        if (email != null && noTelp.length() > 0) {
+        if (email != null) {
             nasabah.setEmail(email);
         }
 
-        if (noTelp != null && noTelp.length() > 0) {
+        if (noTelp != null) {
             nasabah.setNoTelp(noTelp);
         }
 
@@ -94,7 +115,8 @@ public class NasabahService {
         nasabah.setIdKantor(idKantor);
     }
 
-    public Map<String, Object> getNomorRekening(int nomorRekening) {
+    /* Mengecek apakah nomor rekening terdapat pada database */
+    public Map<String, Object> validasiNomorRekening(int nomorRekening) {
         Map<String, Object> map = new HashMap<>();
 
         if (nasabahRepository.existsById(nomorRekening)) {
@@ -110,6 +132,7 @@ public class NasabahService {
         return map;
     }
 
+    /* Mengambil data kontak email dan nomor telepon yang terdaftar pada akun nasabah */
     public Map<String, Object> getKontakNasabah(int nomorRekening) {
         Map<String, Object> map = new HashMap<>();
 
@@ -124,11 +147,16 @@ public class NasabahService {
         return map;
     }
 
-    public Map<String, Object> transaksi() {
+    /* Membuat map berisi pesan transaksi */
+    public Map<String, Object> pesanTransaksi(int jenisTransaksi, int statusTransaksi) {
         Map<String, Object> map = new HashMap<>();
 
-        map.put("nomorRekening", 3);
-        map.put("jumlah", 2);
+        map.put("nomorNasabah", 0);
+        map.put("jenisTransaksi", jenisTransaksi);
+        map.put("statusTransaksi", statusTransaksi);
+        map.put("logTransaksi", "transaksi nasabah");
+
+        System.out.println(map);
 
         return map;
     }

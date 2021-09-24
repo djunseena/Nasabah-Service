@@ -20,21 +20,35 @@ public class NasabahController {
         this.nasabahService = nasabahService;
     }
 
+    /* Liat data semua akun nasabah bank */
     @GetMapping
     public List<Nasabah> getNasabah() {
         return nasabahService.getAllNasabah();
     }
 
+    /* Menambah akun nasabah baru */
     @PostMapping
     public void addNewNasabah(@RequestBody Nasabah nasabah) {
-        nasabahService.addNewNasabah(nasabah);
+        try {
+            nasabahService.addNewNasabah(nasabah);
+            postLogging(4, 1);
+        } catch (Exception e) {
+            postLogging(4, 2);
+        }
     }
 
+    /* Menghapus akun nasabah */
     @DeleteMapping("/hapusNasabah/{nomorRekening}")
     public void deleteNasabah(@PathVariable("nomorRekening") int nomorRekening) {
-        nasabahService.deleteNasabah(nomorRekening);
+        try {
+            nasabahService.deleteNasabah(nomorRekening);
+            postLogging(5, 1);
+        } catch (Exception e) {
+            postLogging(5, 2);
+        }
     }
 
+    /* Ubah data akun nasabah */
     @PutMapping("/ubahData/{nomorRekening}")
     public void updateDataNasabah(
             @PathVariable("nomorRekening") int nomorRekening,
@@ -49,32 +63,34 @@ public class NasabahController {
         nasabahService.updateDataNasabah(nomorRekening, namaNasabah, pin, email, noTelp, status, blokir, idKantor);
     }
 
+    /* Mengecek apakah nomor rekening terdapat pada database */
     @GetMapping("/validasiNomorRekening/{nomorRekening}")
-    public Map<String, Object> getNomorRekening(@PathVariable("nomorRekening") int nomorRekening) {
-        return nasabahService.getNomorRekening(nomorRekening);
+    public Map<String, Object> validasiNomorRekening(@PathVariable("nomorRekening") int nomorRekening) {
+        return nasabahService.validasiNomorRekening(nomorRekening);
     }
 
+    /* Mengambil data kontak email dan nomor telepon yang terdaftar pada akun nasabah */
     @GetMapping("/getKontakNasabah/{nomorRekening}")
     public Map<String, Object> getKontakNasabah(@PathVariable("nomorRekening") int nomorRekening) {
         return nasabahService.getKontakNasabah(nomorRekening);
     }
 
+    /* Validasi data id kantor */
     @GetMapping("/getIdKantor/{idKantor}")
     public Map<String, Object> getIdKantor(@PathVariable Long idKantor) {
-//        WebClient nasabah = WebClient.create("http://10.10.30.35:7006");
         WebClient nasabah = WebClient.create("http://localhost:7006");
         WebClient.ResponseSpec responseSpec = nasabah.get()
                 .uri("kantor/validasiIdKantor/" + idKantor)
                 .retrieve();
 
-        return responseSpec.bodyToMono(HashMap.class).block();
+        return responseSpec.bodyToMono(Map.class).block();
     }
 
+    /* Mengirim pesan transaksi */
     @PostMapping("/transaksi")
-    public String postLogging() {
-        Map<String, Object> map = nasabahService.transaksi();
+    public String postLogging(int jenisTransaksi, int statusTransaksi) {
+        Map<String, Object> map = nasabahService.pesanTransaksi(jenisTransaksi, statusTransaksi);
 
-//        WebClient client = WebClient.create("http://10.10.30.32:7007");
         WebClient client = WebClient.create("http://localhost:7007");
         WebClient.ResponseSpec responseSpec = client
                 .post()
