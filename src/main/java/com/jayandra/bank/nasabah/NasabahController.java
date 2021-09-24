@@ -3,10 +3,12 @@ package com.jayandra.bank.nasabah;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.POST;
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping(path = "/nasabah")
+@RequestMapping("/nasabah")
 public class NasabahController {
     private final NasabahService nasabahService;
 
@@ -17,26 +19,50 @@ public class NasabahController {
 
     @GetMapping
     public List<Nasabah> getNasabah() {
-        return nasabahService.getNasabah();
+        return nasabahService.getAllNasabah();
     }
 
     @PostMapping
-    public void registerNewNasabah(@RequestBody Nasabah nasabah) {
+    public void addNewNasabah(@RequestBody Nasabah nasabah) {
         nasabahService.addNewNasabah(nasabah);
     }
 
-    @DeleteMapping(path = "{nomorNasabah}")
-    public void deleteNasabah(@PathVariable("nomorNasabah") int nomorNasabah) {
-        nasabahService.deleteNasabah(nomorNasabah);
+    @DeleteMapping("/hapusNasabah/{nomorRekening}")
+    public void deleteNasabah(@PathVariable("nomorRekening") int nomorRekening) {
+        nasabahService.deleteNasabah(nomorRekening);
     }
 
-    @PutMapping(path = "{nomorNasabah}")
+    @PutMapping("/ubahData/{nomorRekening}")
     public void updateDataNasabah(
-            @PathVariable("nomorNasabah") int nomorNasabah,
+            @PathVariable("nomorRekening") int nomorRekening,
             @RequestParam(required = false) String namaNasabah,
             @RequestParam(required = false) String pin,
-            @RequestParam(required = false) String nik
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String noTelp,
+            @RequestParam(required = false) int status,
+            @RequestParam(required = false) boolean blokir,
+            @RequestParam(required = false) Long idKantor
     ) {
-        nasabahService.updateDataNasabah(nomorNasabah, namaNasabah, pin, nik);
+        nasabahService.updateDataNasabah(nomorRekening, namaNasabah, pin, email, noTelp, status, blokir, idKantor);
     }
+
+    @GetMapping("/validasiNomorRekening/{nomorRekening}")
+    public Map<String, Object> getNomorRekening(@PathVariable("nomorRekening") int nomorRekening) {
+        return nasabahService.getNomorRekening(nomorRekening);
+    }
+
+    @GetMapping("/getKontakNasabah/{nomorRekening}")
+    public Map<String, Object> getKontakNasabah(@PathVariable("nomorRekening") int nomorRekening) {
+        return nasabahService.getKontakNasabah(nomorRekening);
+    }
+
+    @GetMapping("/getIdKantor/{idKantor]")
+    public void getIdKantor(@PathVariable Long idKantor) {
+        nasabahService.getIdKantor(idKantor);
+    }
+
+//    @PostMapping("/api/transaksi")
+//    public String postLogging() {
+//        return nasabahService.makeLogging();
+//    }
 }

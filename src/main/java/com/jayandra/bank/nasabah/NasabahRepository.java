@@ -8,6 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface NasabahRepository extends JpaRepository<Nasabah, Integer> {
-    @Query(value = "SELECT n FROM Nasabah n WHERE n.nik = ?1")
-    Optional<Nasabah> findNasabahByNik(String Nik);
+
+    @Query(value = "SELECT n FROM Nasabah n WHERE n.nomorRekening = ?1")
+    Optional<Nasabah> findNasabahByNomorRekening(int nomorRekening);
 }

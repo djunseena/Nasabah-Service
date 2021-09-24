@@ -24,8 +24,12 @@ public class Nasabah {
             strategy = GenerationType.SEQUENCE,
             generator = "nasabah_sequence"
     )
-    private int nomorNasabah;
+    private int nomorRekening;
     private String namaNasabah;
     private String pin;
-    private String nik;
+    private String email;
+    private String noTelp;
+    private int status;
+    private boolean blokir;
+    private Long idKantor;
 }
