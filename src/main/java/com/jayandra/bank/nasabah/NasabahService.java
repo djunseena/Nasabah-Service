@@ -151,7 +151,7 @@ public class NasabahService {
     public Map<String, Object> pesanTransaksi(int jenisTransaksi, int statusTransaksi) {
         Map<String, Object> map = new HashMap<>();
 
-        map.put("nomorNasabah", 0);
+        map.put("nomorRekening", 0);
         map.put("jenisTransaksi", jenisTransaksi);
         map.put("statusTransaksi", statusTransaksi);
         map.put("logTransaksi", "transaksi nasabah");
