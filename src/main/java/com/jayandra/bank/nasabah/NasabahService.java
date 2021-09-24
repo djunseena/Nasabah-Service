@@ -1,9 +1,8 @@
 package com.jayandra.bank.nasabah;
 
+import com.jayandra.bank.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import javax.transaction.Transactional;
 import java.util.*;
@@ -12,44 +11,42 @@ import java.util.*;
 public class NasabahService {
 
     private final NasabahRepository nasabahRepository;
+    private final Status pesan;
 
     @Autowired
-    public NasabahService(NasabahRepository nasabahRepository) {
+    public NasabahService(NasabahRepository nasabahRepository, Status pesan) {
         this.nasabahRepository = nasabahRepository;
+        this.pesan = pesan;
     }
+
+
 
     public String getNamaNasabah(int nomorRekening) {
         Nasabah nasabah = nasabahRepository.findById(nomorRekening)
-                .orElseThrow(() -> new IllegalStateException(
-                        "Nasabah dengan nomor rekening " + nomorRekening + " tidak ada."
-                ));
+                .orElseThrow(IllegalStateException::new);
 
         return nasabah.getNamaNasabah();
     }
 
     public String getEmailNasabah(int nomorRekening) {
         Nasabah nasabah = nasabahRepository.findById(nomorRekening)
-                .orElseThrow(() -> new IllegalStateException(
-                        "Nasabah dengan nomor rekening " + nomorRekening + " tidak ada."
-                ));
+                .orElseThrow(IllegalStateException::new);
 
         return nasabah.getEmail();
     }
 
     public String getNoTelpNasabah(int nomorRekening) {
         Nasabah nasabah = nasabahRepository.findById(nomorRekening)
-                .orElseThrow(() -> new IllegalStateException(
-                        "Nasabah dengan nomor rekening " + nomorRekening + " tidak ada."
-                ));
+                .orElseThrow(IllegalStateException::new);
+
 
         return nasabah.getNoTelp();
     }
 
     public boolean getStatusBlokir(int nomorRekening) {
         Nasabah nasabah = nasabahRepository.findById(nomorRekening)
-                .orElseThrow(() -> new IllegalStateException(
-                        "Nasabah dengan nomor rekening " + nomorRekening + " tidak ada."
-                ));
+                .orElseThrow(IllegalStateException::new);
+
 
         return nasabah.isBlokir();
     }
@@ -65,7 +62,7 @@ public class NasabahService {
     public void deleteNasabah(int nomorRekening) {
         boolean exists = nasabahRepository.existsById(nomorRekening);
         if (!exists) {
-            throw new IllegalStateException("Nasabah dengan id" + nomorRekening + "tidak ada.");
+            throw new IllegalStateException(pesan.error411().values().toString());
         }
         nasabahRepository.deleteById(nomorRekening);
     }
@@ -74,9 +71,7 @@ public class NasabahService {
     public void updateDataNasabah(int nomorRekening, String namaNasabah, String pin, String email,
                                   String noTelp, int status, boolean blokir, Long idKantor) {
         Nasabah nasabah = nasabahRepository.findById(nomorRekening)
-                .orElseThrow(() -> new IllegalStateException(
-                        "Nasabah dengan id" + nomorRekening + "tidak ada."
-                ));
+                .orElseThrow(() -> new IllegalStateException(pesan.error411().values().toString()));
 
         if (namaNasabah != null && namaNasabah.length() > 0) {
             nasabah.setNamaNasabah(namaNasabah);
@@ -103,16 +98,14 @@ public class NasabahService {
         Map<String, Object> map = new HashMap<>();
 
         if (nasabahRepository.existsById(nomorRekening)) {
-            map.put("nomorRekening:", nomorRekening);
-            map.put("namaNasabah:", getNamaNasabah(nomorRekening));
+            map.put("nomorRekening", nomorRekening);
+            map.put("namaNasabah", getNamaNasabah(nomorRekening));
 
             if (getStatusBlokir(nomorRekening)) {
-                map.put("status:", 412);
-                map.put("pesan:", "Akun nasabah diblokir.");
+                map = pesan.error412();
             }
         } else {
-            map.put("status:", 411);
-            map.put("pesan:", "Akun nasabah tidak ditemukan.");
+            map = pesan.error411();
         }
         return map;
     }
@@ -121,43 +114,22 @@ public class NasabahService {
         Map<String, Object> map = new HashMap<>();
 
         if (nasabahRepository.existsById(nomorRekening)) {
-            map.put("nomorRekening:", nomorRekening);
-            map.put("namaNasabah:", getNamaNasabah(nomorRekening));
-            map.put("email:", getEmailNasabah(nomorRekening));
-            map.put("noTelp:", getNoTelpNasabah(nomorRekening));
+            map.put("nomorRekening", nomorRekening);
+            map.put("namaNasabah", getNamaNasabah(nomorRekening));
+            map.put("email", getEmailNasabah(nomorRekening));
+            map.put("noTelp", getNoTelpNasabah(nomorRekening));
         } else if (getStatusBlokir(nomorRekening)) {
-            map.put("status:", 412);
-            map.put("pesan:", "Akun nasabah diblokir.");
+            map = pesan.error412();
         }
         return map;
     }
 
-    public void getIdKantor(Long idKantor) {
-//        WebClient nasabah = WebClient.create("http://10.10.30.35:7006");
-        WebClient nasabah = WebClient.create("http://localhost:7006");
-        WebClient.ResponseSpec responseSpec = nasabah.get()
-                .uri("/kantor/validasiIdKantor/" + idKantor)
-                .retrieve();
+    public Map<String, Object> transaksi() {
+        Map<String, Object> map = new HashMap<>();
 
-        Object response = responseSpec.bodyToMono(Object.class).block();
-        System.out.println(response.toString());
-    }
+        map.put("nomorRekening", 3);
+        map.put("jumlah", 2);
 
-    public String makeLogging() {
-//        WebClient client = WebClient.create("http://10.10.30.32:7002");
-        WebClient client = WebClient.create("http://localhost:7002");
-
-        HashMap map = new HashMap();
-        map.put("nomorRekening:", 1);
-        map.put("namaNasabah:", "A");
-
-        WebClient.ResponseSpec responseSpec = client.put()
-                .uri("/tabungan/kurangi_saldo")
-                .body(Mono.just(map), HashMap.class)
-                .retrieve();
-
-        String responseBody = responseSpec.bodyToMono(String.class).block();
-
-        return responseBody;
+        return map;
     }
 }

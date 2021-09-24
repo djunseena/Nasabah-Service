@@ -2,8 +2,11 @@ package com.jayandra.bank.nasabah;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import javax.ws.rs.POST;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -56,13 +59,29 @@ public class NasabahController {
         return nasabahService.getKontakNasabah(nomorRekening);
     }
 
-    @GetMapping("/getIdKantor/{idKantor]")
-    public void getIdKantor(@PathVariable Long idKantor) {
-        nasabahService.getIdKantor(idKantor);
+    @GetMapping("/getIdKantor/{idKantor}")
+    public Map<String, Object> getIdKantor(@PathVariable Long idKantor) {
+//        WebClient nasabah = WebClient.create("http://10.10.30.35:7006");
+        WebClient nasabah = WebClient.create("http://localhost:7006");
+        WebClient.ResponseSpec responseSpec = nasabah.get()
+                .uri("kantor/validasiIdKantor/" + idKantor)
+                .retrieve();
+
+        return responseSpec.bodyToMono(HashMap.class).block();
     }
 
-//    @PostMapping("/api/transaksi")
-//    public String postLogging() {
-//        return nasabahService.makeLogging();
-//    }
+    @PostMapping("/transaksi")
+    public String postLogging() {
+        Map<String, Object> map = nasabahService.transaksi();
+
+//        WebClient client = WebClient.create("http://10.10.30.32:7007");
+        WebClient client = WebClient.create("http://localhost:7007");
+        WebClient.ResponseSpec responseSpec = client
+                .post()
+                .uri("/api/transaksi")
+                .body(Mono.just(map), HashMap.class)
+                .retrieve();
+
+        return responseSpec.bodyToMono(String.class).block();
+    }
 }
