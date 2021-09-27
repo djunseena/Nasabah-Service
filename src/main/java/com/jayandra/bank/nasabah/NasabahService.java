@@ -19,9 +19,6 @@ public class NasabahService {
         this.pesan = pesan;
     }
 
-    /*
-     * Get informasi akun nasabah sesuai nomor rekening
-     */
     public String getNamaNasabah(int nomorRekening) {
         Nasabah nasabah = nasabahRepository.findById(nomorRekening)
                 .orElseThrow(IllegalStateException::new);
@@ -44,14 +41,6 @@ public class NasabahService {
         return nasabah.getNoTelp();
     }
 
-    public int getStatus(int nomorRekening) {
-        Nasabah nasabah = nasabahRepository.findById(nomorRekening)
-                .orElseThrow(IllegalStateException::new);
-
-
-        return nasabah.getStatus();
-    }
-
     public boolean getStatusBlokir(int nomorRekening) {
         Nasabah nasabah = nasabahRepository.findById(nomorRekening)
                 .orElseThrow(IllegalStateException::new);
@@ -61,17 +50,14 @@ public class NasabahService {
     }
 
 
-    /* Liat data semua akun nasabah bank */
     public List<Nasabah> getAllNasabah() {
         return nasabahRepository.findAll();
     }
 
-    /* Menambah akun baru */
     public void addNewNasabah(Nasabah nasabah) {
         nasabahRepository.save(nasabah);
     }
 
-    /* Menghapus akun nasabah */
     public void deleteNasabah(int nomorRekening) {
         boolean exists = nasabahRepository.existsById(nomorRekening);
         if (!exists) {
@@ -80,7 +66,6 @@ public class NasabahService {
         nasabahRepository.deleteById(nomorRekening);
     }
 
-    /* Ubah data akun nasabah */
     @Transactional
     public void updateDataNasabah(
             int nomorRekening,
@@ -115,7 +100,6 @@ public class NasabahService {
         nasabah.setIdKantor(idKantor);
     }
 
-    /* Mengecek apakah nomor rekening terdapat pada database */
     public Map<String, Object> validasiNomorRekening(int nomorRekening) {
         Map<String, Object> map = new HashMap<>();
 
@@ -132,7 +116,6 @@ public class NasabahService {
         return map;
     }
 
-    /* Mengambil data kontak email dan nomor telepon yang terdaftar pada akun nasabah */
     public Map<String, Object> getKontakNasabah(int nomorRekening) {
         Map<String, Object> map = new HashMap<>();
 
@@ -147,7 +130,6 @@ public class NasabahService {
         return map;
     }
 
-    /* Membuat map berisi pesan transaksi */
     public Map<String, Object> pesanTransaksi(int jenisTransaksi, int statusTransaksi) {
         Map<String, Object> map = new HashMap<>();
 
@@ -155,8 +137,6 @@ public class NasabahService {
         map.put("jenisTransaksi", jenisTransaksi);
         map.put("statusTransaksi", statusTransaksi);
         map.put("logTransaksi", "transaksi nasabah");
-
-        System.out.println(map);
 
         return map;
     }
