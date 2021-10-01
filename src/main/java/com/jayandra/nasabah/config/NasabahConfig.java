@@ -1,5 +1,7 @@
-package com.jayandra.bank.nasabah;
+package com.jayandra.nasabah.config;
 
+import com.jayandra.nasabah.model.Nasabah;
+import com.jayandra.nasabah.repository.NasabahRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,8 +14,8 @@ public class NasabahConfig {
     CommandLineRunner commandLineRunner(NasabahRepository repository) {
 
         return args -> {
-            Nasabah a = new Nasabah(1, "A", "1234", "a@gmail.com", "1234567890", 1, true, 1L);
-            Nasabah b = new Nasabah(2, "B", "1234", "b@gmail.com", "1234567890", 2, false, 1L);
+            Nasabah a = new Nasabah("12345", "A");
+            Nasabah b = new Nasabah("23456", "B");
 
             repository.saveAll(List.of(a, b));
         };
